@@ -11,6 +11,7 @@ router.post('/submit', (request, response) => {
     let quote = request.body.quote;
     if(quote) {
         // Add to database
+        // TODO: Load database credentials from config file
     }
     response.redirect('/');
 });
