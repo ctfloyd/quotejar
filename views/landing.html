@@ -1,23 +1,40 @@
 <html>
     <title>Quote Jar!</title>
+    <style>
+         #input {
+             width: 100%;
+         }
+    </style>
     <body>
         <p>Insert image of a quote jar here</p>
-        <p id="currentQuote"></p>
-        <form method='POST' action='/submit'>
-            <input type="text" name="quote">
+        <p id="currentQuote">Oops! I couldn't find a quote in the jar, perhaps the jar is missing?</p>
+        <p id="person">Well if I couldn't get the quote, what makes you think I could get who said it?</p>
+        <input type="button" value="Get me a different quote" id="newQuote">
+        <form method='POST' action='/submit' id="input">
+            <select name="person">
+                <option value="caleb">Caleb</option>
+                <option value="sylvia">Sylvia</option>
+                <option value="loser">Some other loser!</option>
+            </select>            
+            <input type="text" name="quote" value="Really funny quote that someone said goes here.">
             <input type="submit" value="Get in the jar!">
-            <!-- Add a dropdown for who said it -->
         </form>
     </body>
     <script>
-         let request = new XMLHttpRequest();
-         request.onreadystatechange = function() {
-             if(request.readyState == 4 && request.status == 200) {
-                let response = request.responseText;
-                document.getElementById("currentQuote").innerText = response;
-             }
-         }
-         request.open("GET", "../getQuote", true);
-         request.send(null);
+        function generateQuote() {
+            let request = new XMLHttpRequest();
+            request.onreadystatechange = function() {
+                if(request.readyState == 4 && request.status == 200) {
+                    let response = JSON.parse(request.responseText);
+                    document.getElementById("currentQuote").innerText = response.quote;
+                    document.getElementById("person").innerText = `${response.person} - ${response.createdDate.split(' ')[0]}`;
+                }
+            }
+            request.open("GET", "../getQuote", true);
+            request.send(null);
+        }
+        generateQuote();
+
+        document.getElementById("newQuote").onclick = generateQuote;
     </script>
 </html>

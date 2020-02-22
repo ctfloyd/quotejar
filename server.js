@@ -10,7 +10,7 @@ app.use(bodyParser.urlencoded({ extended: true}));
 
 router.post('/submit', (request, response) => {
     let quote = request.body.quote;
-    let person = "Caleb";
+    let person = request.body.person;
     if(quote) {
         let database = new sqlite3.Database('quotes.db', sqlite3.OPEN_READWRITE, (err) => {
             if(err)
