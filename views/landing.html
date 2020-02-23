@@ -1,40 +1,123 @@
 <html>
-    <title>Quote Jar!</title>
-    <style>
-         #input {
-             width: 100%;
-         }
-    </style>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css?family=Arvo&display=swap" rel="stylesheet">
+        <title>Quote Jar!</title>
+        <style> 
+            @keyframes color-animation {
+                0%   {background: red;}
+                25%  {background: yellow;}
+                50%  {background: blue;}
+                75%  {background: green;}
+                100% {background: red;}
+            }
+
+            body {
+                animation: color-animation 15s infinite;
+            }
+
+            #input {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            form {
+                display: block;
+                text-align: center;
+            }
+
+            .quoteText {
+                font-family: 'Arvo';
+                font-size: 18px;
+            }
+
+            .quote {
+                font-size:32px;
+                color: white;
+            }
+            
+            #container {
+                margin: auto;
+                width: 80%;
+                text-align:center;
+            }
+
+            #newQuoteButton {
+                padding-bottom: 2%;
+                padding-top: 2%;
+                margin-bottom: 2%;
+                width: 100%;
+            }
+
+            #person{
+                text-align: center;
+            }
+
+            #currentQuote {
+                text-align: center;
+            }
+
+            .formContent {
+                width: 100%;
+                margin-bottom: 2%;
+                text-align: center;
+            }
+
+            #control {
+                position: fixed;
+                right: 10%;
+                left: 10%;
+                bottom: 0px;
+            }
+
+        </style>
+    </head>
     <body>
-        <p>Insert image of a quote jar here</p>
-        <p id="currentQuote">Oops! I couldn't find a quote in the jar, perhaps the jar is missing?</p>
-        <p id="person">Well if I couldn't get the quote, what makes you think I could get who said it?</p>
-        <input type="button" value="Get me a different quote" id="newQuote">
-        <form method='POST' action='/submit' id="input">
-            <select name="person">
-                <option value="caleb">Caleb</option>
-                <option value="sylvia">Sylvia</option>
-                <option value="loser">Some other loser!</option>
-            </select>            
-            <input type="text" name="quote" value="Really funny quote that someone said goes here.">
-            <input type="submit" value="Get in the jar!">
-        </form>
+        <div id="container">
+            <p id="currentQuote" class="quoteText quote">Oops! I couldn't find a quote in the jar, perhaps the jar is missing?</p>
+            <p id="person" class="quoteText quote">Well if I couldn't get the quote, what makes you think I could get who said it?</p>
+            <div id="control">
+                <input id="newQuoteButton" type="button" value="Get me a different quote" id="newQuote" class="quoteText">
+                <br>
+                <form method='POST' action='/submit' id="input">
+                    <input class="formContent quoteText" id="inputField" type="text" name="quote" value="Really, really great quote.">
+                    <select name="person" class="formContent quoteText">
+                        <option value="caleb">Caleb</option>
+                        <option value="sylvia">Sylvia</option>
+                        <option value="loser">Some other loser!</option>
+                    </select>            
+                    <br>
+                    <input id="submitButton" type="submit" class="formContent quoteText" value="Get in the jar!">
+                </form>
+            </div>
+        </div>
     </body>
     <script>
-        function generateQuote() {
+        function generateQuote(callback) {
             let request = new XMLHttpRequest();
             request.onreadystatechange = function() {
                 if(request.readyState == 4 && request.status == 200) {
-                    let response = JSON.parse(request.responseText);
-                    document.getElementById("currentQuote").innerText = response.quote;
-                    document.getElementById("person").innerText = `${response.person} - ${response.createdDate.split(' ')[0]}`;
+                    callback(JSON.parse(request.responseText));
                 }
             }
             request.open("GET", "../getQuote", true);
             request.send(null);
         }
-        generateQuote();
 
-        document.getElementById("newQuote").onclick = generateQuote;
+        let currentQuote = "";
+        function newQuote() {
+            let response = null;
+            generateQuote((quote) => {
+                if(!quote || quote.quote == currentQuote.quote) {
+                    return newQuote();
+                }
+                currentQuote = quote;
+                document.getElementById("currentQuote").innerText = `"${quote.quote}"`;
+                document.getElementById("person").innerText = `${quote.person} - ${quote.createdDate.split(' ')[0]}`;
+            })
+        }
+        newQuote();
+
+        document.getElementById("newQuoteButton").onclick = newQuote;
     </script>
 </html>
